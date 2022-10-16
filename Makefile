@@ -4,11 +4,17 @@
 PROJECT = SAT
 
 # Utilities (we explicitly compile for Java 7)
-JAVAC = javac -source 1.7 -target 1.7 -bootclasspath /usr/lib/jvm/java-7-openjdk/jre/lib/rt.jar -extdirs "" #-Xlint:deprecation -Xlint:unchecked
-JAVA = /usr/lib/jvm/java-7-openjdk/jre/bin/java
+JAVAC = javac
+JAVA = java
 JAR = jar
 
-all: run
+all: dirs build
+
+# Creates required directories
+dirs: ./bin
+
+./bin:
+	mkdir bin
 
 # Run the program
 run: build

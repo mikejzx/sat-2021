@@ -7,10 +7,10 @@ import java.util.Enumeration;
 public class RecipeListComponent extends JPanel
 {
     // Internal list model
-    private DefaultListModel listModel;
+    private DefaultListModel<String> listModel;
 
     // List component
-    private JList list;
+    private JList<String> list;
 
     /*
      * Initialises a new RecipeListComponent
@@ -21,12 +21,12 @@ public class RecipeListComponent extends JPanel
         setLayout(new BorderLayout());
 
         // Prepare list model
-        listModel = new DefaultListModel();
+        listModel = new DefaultListModel<String>();
 
         refresh();
 
         // Create the main recipe list object
-        list = new JList(listModel);
+        list = new JList<String>(listModel);
 
         // Disable multi-select
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -60,7 +60,7 @@ public class RecipeListComponent extends JPanel
                     list.setSelectedIndex(index);
 
                     // Get name of cell (recipe title)
-                    String title = (String)listModel.getElementAt(index);
+                    String title = listModel.getElementAt(index);
 
                     // Show the recipe in the recipe viewer (if we aren't
                     // already on it)

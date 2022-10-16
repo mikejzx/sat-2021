@@ -17,7 +17,7 @@ public class RecipeSearchComponent extends JPanel
     private ArrayList<String> tagFilteredRecipes;
 
     // List models
-    private DefaultListModel recipeListModel, tagsListModel;
+    private DefaultListModel<String> recipeListModel, tagsListModel;
 
     // Recipe search query
     private String searchQuery = "";
@@ -58,8 +58,8 @@ public class RecipeSearchComponent extends JPanel
 
         // Add recipe list to the left panel with a scrollpane
         leftPanel.add(new JLabel("Recipes:"), BorderLayout.NORTH);
-        recipeListModel = new DefaultListModel();
-        final JList recipeList = new JList(recipeListModel);
+        recipeListModel = new DefaultListModel<String>();
+        final JList<String> recipeList = new JList<String>(recipeListModel);
         recipeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         recipeList.setDragEnabled(false);
         JScrollPane leftScrollPane = new JScrollPane(recipeList);
@@ -109,8 +109,8 @@ public class RecipeSearchComponent extends JPanel
 
         // Add tag filter list to the right panel with a scrollpane
         rightPanel.add(new JLabel("Tag filter (click to select)"), BorderLayout.NORTH);
-        tagsListModel = new DefaultListModel();
-        final JList tagsList = new JList(tagsListModel);
+        tagsListModel = new DefaultListModel<String>();
+        final JList<String> tagsList = new JList<String>(tagsListModel);
         JScrollPane rightScrollPane = new JScrollPane(tagsList);
         rightScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         rightScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);

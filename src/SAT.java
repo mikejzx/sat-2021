@@ -40,6 +40,8 @@ public class SAT
     // Toolbar buttons
     private static JButton tbBtnNew, tbBtnEdit, tbBtnDelete, tbBtnSearch;
 
+    private static final String RECIPES_PATH = "recipes.xml";
+
     /*
      * Entry-point method
      *
@@ -277,7 +279,7 @@ public class SAT
             Unmarshaller unmarshal = ctx.createUnmarshaller();
 
 			// Get the file context
-            File file = new File("recipes.xml");
+            File file = new File(RECIPES_PATH);
 			if (!file.exists())
 			{
 				// No recipes file yet
@@ -318,7 +320,7 @@ public class SAT
         try
         {
             // Create the file
-            File file = new File("recipes.xml");
+            File file = new File(RECIPES_PATH);
 
             // Create the container
             RecipeContainer container = new RecipeContainer(
@@ -356,7 +358,8 @@ public class SAT
     public static void showRecipeEditorWindow(final Recipe recipeToEdit, String title)
     {
         // Iterate over the existing frames dictionary, see if one already exists.
-        if (editorFrames.containsKey(recipeToEdit.getTitle()))
+        if (recipeToEdit != null &&
+            editorFrames.containsKey(recipeToEdit.getTitle()))
         {
             // Recipe window already exists
             System.out.println("focusing existing recipe editor window");
@@ -379,7 +382,8 @@ public class SAT
         frame.setVisible(true);
 
         // Add to active editor frames list
-        editorFrames.put(recipeToEdit.getTitle(), frame);
+        if (recipeToEdit != null)
+            editorFrames.put(recipeToEdit.getTitle(), frame);
     }
 
     /*

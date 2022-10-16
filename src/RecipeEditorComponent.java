@@ -12,7 +12,7 @@ public class RecipeEditorComponent extends JPanel
     private final JFrame frame;
 
     // Internal list models for ingredients and procedure lists.
-    private DefaultListModel recipeIngredientsListModel, recipeProcedureListModel;
+    private DefaultListModel<String> recipeIngredientsListModel, recipeProcedureListModel;
 
     /*
      * Initialises new RecipeEditor
@@ -88,10 +88,10 @@ public class RecipeEditorComponent extends JPanel
             ingredientsPanel.setLayout(new BorderLayout());
 
             // Prepare list model
-            recipeIngredientsListModel = new DefaultListModel();
+            recipeIngredientsListModel = new DefaultListModel<String>();
 
             // Create list component
-            final JList ingredientsList = new JList(recipeIngredientsListModel);
+            final JList<String> ingredientsList = new JList<String>(recipeIngredientsListModel);
 
             // Add to a scrollbox and then to panel
             ingredientsPanel.add(new JScrollPane(ingredientsList), BorderLayout.CENTER);
@@ -114,10 +114,10 @@ public class RecipeEditorComponent extends JPanel
             procPanel.setLayout(new BorderLayout());
 
             // Prepare list model
-            recipeProcedureListModel = new DefaultListModel();
+            recipeProcedureListModel = new DefaultListModel<String>();
 
             // Create list component
-            final JList procedureList = new JList(recipeProcedureListModel);
+            final JList<String> procedureList = new JList<String>(recipeProcedureListModel);
 
             // Add to a scrollbox and then to panel
             procPanel.add(new JScrollPane(procedureList), BorderLayout.CENTER);
@@ -185,7 +185,7 @@ public class RecipeEditorComponent extends JPanel
                 // in an Arraylist that we can use
                 ArrayList<String> recipeIngredients
                     = new ArrayList<String>(recipeIngredientsListModel.size());
-                Enumeration<?> enumIngredients
+                Enumeration<String> enumIngredients
                     = recipeIngredientsListModel.elements();
                 while(enumIngredients.hasMoreElements())
                 {
@@ -195,10 +195,8 @@ public class RecipeEditorComponent extends JPanel
 
                 // Iterate over steps from the procedure list and store
                 // in an Arraylist that we can use
-                ArrayList<String> recipeProcedure
-                    = new ArrayList<String>(recipeProcedureListModel.size());
-                Enumeration<?> enumProcedure
-                    = recipeProcedureListModel.elements();
+                ArrayList<String> recipeProcedure = new ArrayList<String>(recipeProcedureListModel.size());
+                Enumeration<String> enumProcedure = recipeProcedureListModel.elements();
                 while(enumProcedure.hasMoreElements())
                 {
                     // Add next element in enumeration
@@ -309,7 +307,7 @@ public class RecipeEditorComponent extends JPanel
      *         panel
      */
     private JPanel createListControls(
-        final JList list, String btnAddText, String btnRemoveText,
+        final JList<String> list, String btnAddText, String btnRemoveText,
         final String addPrompt, final String addPromptTitle)
     {
         // Two cell grid layout panel for the controls
@@ -338,7 +336,7 @@ public class RecipeEditorComponent extends JPanel
                 }
 
                 // Add the item to the list
-                ((DefaultListModel)list.getModel()).addElement(itemName);
+                ((DefaultListModel<String>)list.getModel()).addElement(itemName);
             }
         });
         ctrlPanel.add(btnAdd);
@@ -359,7 +357,7 @@ public class RecipeEditorComponent extends JPanel
                 }
 
                 // Remove from the list
-                ((DefaultListModel)list.getModel()).remove(selected);
+                ((DefaultListModel<String>)list.getModel()).remove(selected);
             }
         });
         ctrlPanel.add(btnRemove);
@@ -384,7 +382,7 @@ public class RecipeEditorComponent extends JPanel
                 // the location just before it.
 
                 // Get list model
-                DefaultListModel model = (DefaultListModel)list.getModel();
+                DefaultListModel<String> model = (DefaultListModel<String>)list.getModel();
 
                 // Store the element so we can reinsert it
                 String element = (String)model.get(selected);
@@ -430,7 +428,7 @@ public class RecipeEditorComponent extends JPanel
                 // the location just after it.
 
                 // Get list model
-                DefaultListModel model = (DefaultListModel)list.getModel();
+                DefaultListModel<String> model = (DefaultListModel<String>)list.getModel();
 
                 // Store the element so we can reinsert it
                 String element = (String)model.get(selected);

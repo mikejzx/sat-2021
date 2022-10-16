@@ -14,6 +14,13 @@ public class RecipeEditorComponent extends JPanel
     // Internal list models for ingredients and procedure lists.
     private DefaultListModel<String> recipeIngredientsListModel, recipeProcedureListModel;
 
+    // Short strings for ingredients/procedure control buttons.
+    private static final String EDITOR_BUTTON_ADD_TEXT = "+";
+    private static final String EDITOR_BUTTON_REMOVE_TEXT = "-";
+    private static final String EDITOR_BUTTON_EDIT_TEXT = "E";
+    private static final String EDITOR_BUTTON_UP_TEXT = "\u2191";
+    private static final String EDITOR_BUTTON_DOWN_TEXT = "\u2193";
+
     /*
      * Initialises new RecipeEditor
      *
@@ -97,7 +104,15 @@ public class RecipeEditorComponent extends JPanel
             ingredientsPanel.add(new JScrollPane(ingredientsList), BorderLayout.CENTER);
 
             // Create list controls
-            ingredientsPanel.add(createListControls(ingredientsList, "Add ingredient", "Remove ingredient", "Enter ingredient:", "New ingredient"), BorderLayout.EAST);
+            ingredientsPanel.add(createListControls(ingredientsList,
+                                                    "Add ingredient",
+                                                    "Remove ingredient",
+                                                    "Edit ingredient",
+                                                    "Enter ingredient:",
+                                                    "New ingredient",
+                                                    "Enter ingredient:",
+                                                    "Edit ingredient"),
+                                                BorderLayout.EAST);
 
             // Add the panel to the right-panel, and add spacer
             rightPanel.add(ingredientsPanel);
@@ -123,7 +138,15 @@ public class RecipeEditorComponent extends JPanel
             procPanel.add(new JScrollPane(procedureList), BorderLayout.CENTER);
 
             // Create list controls
-            procPanel.add(createListControls(procedureList, "Add step", "Remove step", "Add step to procedure:", "New step"), BorderLayout.EAST);
+            procPanel.add(createListControls(procedureList,
+                                             "Add step",
+                                             "Remove step",
+                                             "Edit step",
+                                             "Add step to procedure:",
+                                             "New step",
+                                             "Enter new step:",
+                                             "Edit step"),
+                                         BorderLayout.EAST);
 
             // Add the panel to the right-panel, and add spacer
             rightPanel.add(procPanel);
@@ -297,26 +320,34 @@ public class RecipeEditorComponent extends JPanel
      * Helper method to generate two control buttons (add/remove item) intended
      * to be used with lists such as ingredient lists.
      *
-     * @param model           List model that buttons are for
-     * @param btnAddText      Text for the 'add' button
-     * @param btnRemoveText   Text for the 'remove' button
-     * @param addPrompt       Prompt for input dialog when adding items.
-     * @param addPromptTitle  Title for input dialog when adding items.
+     * @param model            List model that buttons are for
+     * @param btnAddText       Text for the 'add' button
+     * @param btnRemoveText    Text for the 'remove' button
+     * @param addPrompt        Prompt for input dialog when adding items.
+     * @param addPromptTitle   Title for input dialog when adding items.
+     * @param editPrompt       Prompt for input dialog when editing items.
+     * @param editPromptTitle  Title for input dialog when editing items.
      *
      * @return resulting panel with the controls, ready to the be added to a
      *         panel
      */
     private JPanel createListControls(
-        final JList<String> list, String btnAddText, String btnRemoveText,
-        final String addPrompt, final String addPromptTitle)
+        final JList<String> list,
+        String btnAddText,
+        String btnRemoveText,
+        String btnEditText,
+        final String addPrompt,
+        final String addPromptTitle,
+        final String editPrompt,
+        final String editPromptTitle)
     {
         // Two cell grid layout panel for the controls
         JPanel ctrlPanel = new JPanel();
-        ctrlPanel.setLayout(new GridLayout(4, 1));
+        ctrlPanel.setLayout(new GridLayout(5, 1));
         add(ctrlPanel);
 
         // 'Add to list' button
-        final JButton btnAdd = new JButton("+");
+        final JButton btnAdd = new JButton(EDITOR_BUTTON_ADD_TEXT);
         btnAdd.setToolTipText(btnAddText);
         btnAdd.addActionListener(new ActionListener() {
             @Override
@@ -329,20 +360,40 @@ public class RecipeEditorComponent extends JPanel
                     addPromptTitle,
                     JOptionPane.QUESTION_MESSAGE);
 
-                // Skip if ingredient is empty
+                // Skip if ingredient/step is empty
                 if (itemName == null || itemName.length() <= 0)
                 {
                     return;
                 }
 
-                // Add the item to the list
-                ((DefaultListModel<String>)list.getModel()).addElement(itemName);
+                // Get list model.
+                DefaultListModel<String> model = (DefaultListModel<String>)list.getModel();
+
+                int selected = list.getSelectedIndex();
+                int location = selected + 1;
+
+                // Determine location to insert the item at; we insert it after
+                // the selected item.
+                if (selected < 0)
+                {
+                    // No selected item; just add it to the end
+                    model.addElement(itemName);
+
+                    location = model.getSize() - 1;
+                }
+                else
+                {
+                    model.add(location, itemName);
+                }
+
+                // Select the new item.
+                list.setSelectedIndex(location);
             }
         });
         ctrlPanel.add(btnAdd);
 
         // 'Remove from list' button
-        final JButton btnRemove = new JButton("-");
+        final JButton btnRemove = new JButton(EDITOR_BUTTON_REMOVE_TEXT);
         btnRemove.setToolTipText(btnRemoveText);
         btnRemove.addActionListener(new ActionListener() {
             @Override
@@ -356,14 +407,66 @@ public class RecipeEditorComponent extends JPanel
                     return;
                 }
 
-                // Remove from the list
-                ((DefaultListModel<String>)list.getModel()).remove(selected);
+                // Get list model.
+                DefaultListModel<String> model = (DefaultListModel<String>)list.getModel();
+
+                // Remove item from the list
+                model.remove(selected);
+
+                // Set the new selection to the item before the selected item.
+                int newSelection = selected - 1;
+                if (newSelection < 0)
+                    newSelection = 0;
+                list.setSelectedIndex(newSelection);
             }
         });
         ctrlPanel.add(btnRemove);
 
-        // 'Move up' button (text is unicode up arrow)
-        final JButton btnUp = new JButton("\u2191");
+        // 'Edit' button
+        final JButton btnEdit = new JButton(EDITOR_BUTTON_EDIT_TEXT);
+        btnEdit.setToolTipText(btnEditText);
+        btnEdit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                // Get selected item
+                int selected = list.getSelectedIndex();
+                if (selected < 0)
+                {
+                    // No item: exit
+                    return;
+                }
+
+                // Get list model
+                DefaultListModel<String> model = (DefaultListModel<String>)list.getModel();
+
+                // Get unmodified text.
+                String oldText = model.get(selected);
+
+                // Create an input dialog, with the original text in it.
+                String newName = (String)JOptionPane.showInputDialog(
+                    frame,
+                    editPrompt,
+                    editPromptTitle,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    null,
+                    oldText);
+
+                // Skip if edited text is empty.
+                if (newName == null || newName.length() <= 0)
+                {
+                    return;
+                }
+
+                // Apply the new element text.
+                model.set(selected, newName);
+            }
+        });
+        ctrlPanel.add(btnEdit);
+
+        // 'Move up' button.
+        final JButton btnUp = new JButton(EDITOR_BUTTON_UP_TEXT);
         btnUp.setToolTipText("Move this item up in the list");
         btnUp.addActionListener(new ActionListener() {
             @Override
@@ -388,7 +491,7 @@ public class RecipeEditorComponent extends JPanel
                 String element = (String)model.get(selected);
 
                 // Check if this element is the first element in the list
-                if  (element == model.firstElement())
+                if (element == model.firstElement())
                 {
                     // Return as we can't move the element back any further
                     return;
@@ -397,19 +500,19 @@ public class RecipeEditorComponent extends JPanel
                 // Remove the element from the list
                 model.removeElementAt(selected);
 
-                int newloc = selected - 1;
+                int newLocation = selected - 1;
 
                 // Insert at the new location
-                model.add(newloc, element);
+                model.add(newLocation, element);
 
                 // Select the newly added element
-                list.setSelectedIndex(newloc);
+                list.setSelectedIndex(newLocation);
             }
         });
         ctrlPanel.add(btnUp);
 
-        // 'Move down' button (text is unicode down arrow)
-        final JButton btnDown = new JButton("\u2193");
+        // 'Move down' button.
+        final JButton btnDown = new JButton(EDITOR_BUTTON_DOWN_TEXT);
         btnDown.setToolTipText("Move this item down in the list");
         btnDown.addActionListener(new ActionListener() {
             @Override
@@ -434,7 +537,7 @@ public class RecipeEditorComponent extends JPanel
                 String element = (String)model.get(selected);
 
                 // Check if this element is the first element in the list
-                if  (element == model.lastElement())
+                if (element == model.lastElement())
                 {
                     // Return as we can't move element any more forward
                     return;
@@ -444,13 +547,13 @@ public class RecipeEditorComponent extends JPanel
                 model.removeElementAt(selected);
 
                 // Calculate new index
-                int newloc = selected + 1;
+                int newLocation = selected + 1;
 
                 // Insert at the new location
-                model.add(newloc, element);
+                model.add(newLocation, element);
 
                 // Select the newly added element
-                list.setSelectedIndex(newloc);
+                list.setSelectedIndex(newLocation);
             }
         });
         ctrlPanel.add(btnDown);
